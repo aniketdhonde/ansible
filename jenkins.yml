@@ -1,0 +1,43 @@
+---
+- name: Configure Jenkins
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Install Java
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: Add Jenkins repository key
+      apt_key:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        state: present
+
+    - name: Add Jenkins repository
+      apt_repository:
+        repo: deb https://pkg.jenkins.io/debian-stable binary/
+        state: present
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Start Jenkins service
+      service:
+        name: jenkins
+        state: started
+        enabled: true
+
+    - name: Reading Password File For Jenkins
+      shell: "cat /var/lib/jenkins/secrets/initialAdminPassword"
+      register: file_content
+
+    - name: Printing Password
+      debug:
+        var: file_content.stdout_lines
