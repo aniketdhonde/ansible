@@ -1,0 +1,9 @@
+---
+- name: taking backup
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Creating zip file
+      command: zip -r /root/backup.zip /root
+    - name: Copying zip file to central server
+      command: rsync -avz --progress /root/backup.zip root@192.168.80.155:/root/backup/backup.zip
