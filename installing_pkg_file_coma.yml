@@ -1,0 +1,20 @@
+---
+- name: Install packages on hosts
+  hosts: all
+  become: true
+  tasks:
+    - name: Copy file to host
+      copy:
+        src: /root/package_list.txt
+        dest: /root/package_list.txt
+
+    - name: Read package list from file
+      slurp:
+        src: /root/package_list.txt
+      register: package_list_content
+
+    - name: Install packages
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ package_list_content.content | b64decode | regex_replace('(\r?\n)+', '\n') | regex_replace('\n$', '') | regex_replace('\n', '\\n') | from_yaml }}"
